@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  accesscontrol:
+    image: ${DOCKER_REGISTRY-}accesscontrol
+    build:
+      context: .
+      dockerfile: AccessControl/Dockerfile
