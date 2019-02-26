@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 namespace AccessControl.Messages
 {
     /// <summary>
-    /// Request to create a role within the access control system
+    /// A group creation request
     /// </summary>
-    public class RolePost
+    public class GroupDTO
     {
         /// <summary>
-        /// The name of the role to be created
+        /// The name of the group to be created
         /// </summary>
-        /// <example>publisher</example>
-        public string RoleName { get; set; }
+        /// <example>Auditor</example>
+        public string GroupName { get; set; }
     }
 }

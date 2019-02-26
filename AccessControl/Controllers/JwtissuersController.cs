@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AccessControl.Messages;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AccessControl.Models;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace AccessControl.Controllers
 {
@@ -19,19 +21,27 @@ namespace AccessControl.Controllers
         {
             _context = context;
         }
-
+        /// <summary>
+        /// Gets the list of JWT issuers
+        /// </summary>
+        /// <returns></returns>
         // GET: api/Jwtissuers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Jwtissuer>>> GetJwtissuer()
+        [SwaggerOperation(OperationId = "GetJWTIssuers")]
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
+        public async Task<ActionResult<IEnumerable<Jwtissuer>>> GetJwtissuers()
         {
             return await _context.Jwtissuer.ToListAsync();
         }
 
         // GET: api/Jwtissuers/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Jwtissuer>> GetJwtissuer(string id)
+        [HttpGet("{JWTIssuerId}")]
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
+        [ProducesResponseType(typeof(Jwtissuer),200)]
+        [ProducesResponseType(400)]
+        public async Task<ActionResult<Jwtissuer>> GetJwtissuer(string JWTIssuerId)
         {
-            var jwtissuer = await _context.Jwtissuer.FindAsync(id);
+            var jwtissuer = await _context.Jwtissuer.FindAsync(JWTIssuerId);
 
             if (jwtissuer == null)
             {
@@ -43,10 +53,13 @@ namespace AccessControl.Controllers
         }
 
         // PUT: api/Jwtissuers/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutJwtissuer(string id, Jwtissuer jwtissuer)
+        [HttpPut("{JWTIssuerId}")]
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(typeof(Jwtissuer),200)]
+        public async Task<IActionResult> UpdateJWTIssuer(string JWTIssuerId,[FromBody] Jwtissuer jwtissuer)
         {
-            if (id != jwtissuer.JwtissuerId)
+            if (JWTIssuerId != jwtissuer.JwtissuerId)
             {
                 return BadRequest();
             }
@@ -59,7 +72,7 @@ namespace AccessControl.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!JwtissuerExists(id))
+                if (!JwtissuerExists(JWTIssuerId))
                 {
                     return NotFound();
                 }
@@ -74,7 +87,10 @@ namespace AccessControl.Controllers
 
         // POST: api/Jwtissuers
         [HttpPost]
-        public async Task<ActionResult<Jwtissuer>> PostJwtissuer(Jwtissuer jwtissuer)
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(Jwtissuer),200)]
+        public async Task<ActionResult<Jwtissuer>> CreateJwtissuer([FromBody] Jwtissuer jwtissuer)
         {
             _context.Jwtissuer.Add(jwtissuer);
             try
@@ -93,11 +109,14 @@ namespace AccessControl.Controllers
                 }
             }
 
-            return CreatedAtAction("GetJwtissuer", new { id = jwtissuer.JwtissuerId }, jwtissuer);
+            return CreatedAtAction("GetJwtissuers", new { id = jwtissuer.JwtissuerId }, jwtissuer);
         }
 
         // DELETE: api/Jwtissuers/5
         [HttpDelete("{id}")]
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(typeof(Jwtissuer),StatusCodes.Status202Accepted)]
         public async Task<ActionResult<Jwtissuer>> DeleteJwtissuer(string id)
         {
             var jwtissuer = await _context.Jwtissuer.FindAsync(id);

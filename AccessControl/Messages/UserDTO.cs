@@ -8,7 +8,7 @@ namespace AccessControl.Messages
     /// <summary>
     /// Payload to create a new user
     /// </summary>
-    public class UserPost
+    public class UserDTO
     {
         /// <summary>
         /// Unique id from authentication system

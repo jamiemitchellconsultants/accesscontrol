@@ -11,6 +11,7 @@ using AccessControl.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using  AccessControl.Services;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace AccessControl.Controllers
 {
@@ -44,8 +45,10 @@ namespace AccessControl.Controllers
         /// <response code="200">Users in access control</response>
         [HttpGet]
         [ExternalPermission("user","GET")]
+        [SwaggerOperation(OperationId = "GetUsers")]
         [ProducesResponseType(200,Type=typeof(UserResponse[]))]
-        public async Task<ActionResult<IEnumerable<User>>> GetUser()
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
+        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
             return Ok(await _context.User.Select(o => new UserResponse
                 {LocalName = o.LocalName, SubjectId = o.SubjectId, UserId = o.UserId}).ToArrayAsync());
@@ -54,13 +57,14 @@ namespace AccessControl.Controllers
         /// <summary>
         /// Gets a specific user
         /// </summary>
-        /// <param name="subjectId">USe subject id from authentication to find user</param>
+        /// <param name="subjectId">Use subject id from authentication to find user</param>
         /// <returns>User details</returns>
         /// <response code="400">User not found</response>
         // GET: api/Users/5
         [HttpGet("{subjectId}")]
         [ProducesResponseType(200,Type = typeof(UserResponse))]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
         public async Task<ActionResult<User>> GetUser(string subjectId)
         {
             var user = await _context.User.FirstOrDefaultAsync(o=>o.SubjectId==subjectId);
@@ -85,7 +89,9 @@ namespace AccessControl.Controllers
         [HttpGet]
         [Route("{subjectId}/permission")]
         [ProducesResponseType(200, Type = typeof(PermissionResponse))]
-        public async Task<ActionResult<PermissionResponse>> GetUserPermission(string subjectId)
+        [ProducesResponseType(404)]
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
+        public async Task<ActionResult<PermissionResponse>> GetUserPermissions(string subjectId)
         {
             var permissionResponse = new PermissionResponse {Permission = new List<PermissionResponseDetail>()};
 
@@ -118,8 +124,9 @@ namespace AccessControl.Controllers
         /// <response code="200">Permission Result</response>
         [HttpGet]
         [Route("{subjectId}/permission/{resource}/{action}")]
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
         [ProducesResponseType(200,Type= typeof(PermissionCheckResult))]
-        public async Task<ActionResult<PermissionCheckResult>> CheckUserPermission(string subjectId, string resource,
+        public async Task<ActionResult<PermissionCheckResult>> GetUserPermissionCheck(string subjectId, string resource,
             string action)
         {
             var permission = await _permission.CheckPermission(subjectId, resource, action);
@@ -135,7 +142,10 @@ namespace AccessControl.Controllers
         /// <response code="201">User Created</response>
         [HttpPost]
         [ProducesResponseType(201, Type = typeof(UserResponse))]
-        public async Task<ActionResult<UserResponse>> PostUser(UserPost user)
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
+        [ProducesResponseType(404)]
+        [ProducesResponseType((int)StatusCodes.Status409Conflict)]
+        public async Task<ActionResult<UserResponse>> CreateUser(UserDTO user)
         {
             var dbUser = _context.User.Add(new User { UserId = Guid.NewGuid().ToString(), LocalName = user.LocalName, SubjectId = user.SubjectId});
             
@@ -158,7 +168,7 @@ namespace AccessControl.Controllers
             }
 
             await _context.SaveChangesAsync();
-            return CreatedAtAction("GetUser", new { id = dbUser.Entity.UserId }, new UserResponse{LocalName = user.LocalName,SubjectId = user.SubjectId,UserId = dbUser.Entity.UserId});
+            return CreatedAtAction("GetUsers", new { id = dbUser.Entity.UserId }, new UserResponse{LocalName = user.LocalName,SubjectId = user.SubjectId,UserId = dbUser.Entity.UserId});
         }
 
         /// <summary>
@@ -171,6 +181,7 @@ namespace AccessControl.Controllers
         [HttpPatch("{subjectId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
         public async Task<IActionResult> PatchUser(string subjectId, [FromBody] JsonPatchDocument<UserPatch> userPatch)
         {
             var dbUser = await _context.User.FirstOrDefaultAsync(o => o.SubjectId == subjectId);

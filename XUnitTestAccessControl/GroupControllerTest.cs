@@ -26,14 +26,14 @@ namespace XUnitTestAccessControl
         public async Task TestPost()
         {
             var testController = new GroupsController(_databaseFixture.ACContext);
-            var result = await testController.PostGroup(new GroupPost { GroupName = "TestGroup" });
+            var result = await testController.PostGroup(new GroupDTO { GroupName = "TestGroup" });
             Assert.NotNull(result);
             var resultValue = (result.Result as CreatedAtActionResult).Value as GroupResponse;
 
             var GroupId = resultValue.GroupId;
             var GroupRecord = await _databaseFixture.ACContext.Group.FindAsync(GroupId);
             Assert.Equal(GroupRecord.GroupId, GroupId);
-            await Assert.ThrowsAsync<DbUpdateException>(async () => await testController.PostGroup(new GroupPost() { GroupName = "TestGroup" }));
+            await Assert.ThrowsAsync<DbUpdateException>(async () => await testController.PostGroup(new GroupDTO() { GroupName = "TestGroup" }));
 
         }
 
@@ -50,7 +50,7 @@ namespace XUnitTestAccessControl
             }
             await _databaseFixture.ACContext.SaveChangesAsync();
             var testController = new GroupsController(_databaseFixture.ACContext);
-            var result = await testController.GetGroup();
+            var result = await testController.GetGroups();
 
 
             var resultResult = (Microsoft.AspNetCore.Mvc.OkObjectResult)result.Result;

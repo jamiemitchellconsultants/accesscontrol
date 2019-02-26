@@ -39,14 +39,14 @@ namespace XUnitTestAccessControl
             await _databaseFixture.ACContext.SaveChangesAsync();
             var testController = new ResourcesController(_databaseFixture.ACContext);
 
-            var result = await testController.PostResource(new ResourcePost { ResourceName = "TestResource" , ApplicationAreaId = applicationareaId});
+            var result = await testController.CreateResource(new ResourceDTO { ResourceName = "TestResource" , ApplicationAreaId = applicationareaId});
             Assert.NotNull(result);
             var resultValue = (result.Result as CreatedAtActionResult).Value as ResourceResponse;
 
             var ResourceId = resultValue.ResourceId;
             var ResourceRecord = await _databaseFixture.ACContext.Resource.FindAsync(ResourceId);
             Assert.Equal(ResourceRecord.ResourceId, ResourceId);
-            await Assert.ThrowsAsync<DbUpdateException>(async () => await testController.PostResource(new ResourcePost() { ResourceName = "TestResource", ApplicationAreaId = applicationareaId}));
+            await Assert.ThrowsAsync<DbUpdateException>(async () => await testController.CreateResource(new ResourceDTO() { ResourceName = "TestResource", ApplicationAreaId = applicationareaId}));
 
         }
 
@@ -68,7 +68,7 @@ namespace XUnitTestAccessControl
             }
             await _databaseFixture.ACContext.SaveChangesAsync();
             var testController = new ResourcesController(_databaseFixture.ACContext);
-            var result = await testController.GetResource();
+            var result = await testController.GetResources();
 
 
             var resultResult = (Microsoft.AspNetCore.Mvc.OkObjectResult)result.Result;

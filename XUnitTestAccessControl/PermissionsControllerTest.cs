@@ -172,7 +172,7 @@ namespace XUnitTestAccessControl
             #endregion
 
             //now to check
-            var testPermissionController = new PermissionCheckController(_permissionFixture.PermissionCheck);
+            var testPermissionController = new PermissionCheckController(_permissionFixture.PermissionCheck,_databaseFixture.ACContext);
             var fakeUser = new ClaimsPrincipal(new GenericPrincipal(new GenericIdentity("James"), new string[] { }));
             (fakeUser.Identity as ClaimsIdentity).AddClaim(new Claim("subject",subjectIds[0]));
             var context = new ControllerContext
@@ -184,7 +184,7 @@ namespace XUnitTestAccessControl
             };
 
             testPermissionController.ControllerContext = context;
-            var gotPermissions=await testPermissionController.Get("subject");
+            var gotPermissions=await testPermissionController.GetUserPermissions("subject");
             //var pList =  gotPermissions.Result as OkObjectResult;
 
             var permissionResult = gotPermissions.Result as OkObjectResult;

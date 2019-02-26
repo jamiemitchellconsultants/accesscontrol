@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AccessControl.Models;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace AccessControl.Controllers
 {
@@ -37,8 +38,10 @@ namespace AccessControl.Controllers
         /// <returns>List of roles</returns>
         /// <response code="200">List of roles found</response>
         [HttpGet]
+        [SwaggerOperation(OperationId = "GetRoles")]
         [ProducesResponseType(typeof(RoleResponse[]),200)]
-        public async Task<ActionResult<IEnumerable<RoleResponse>>> GetRole()
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
+        public async Task<ActionResult<IEnumerable<RoleResponse>>> GetRoles()
         {
             return Ok( await _context.Role.Select(o=>new RoleResponse{RoleId = o.RoleId,RoleName = o.RoleName}).ToListAsync());
         }
@@ -50,11 +53,12 @@ namespace AccessControl.Controllers
         /// </summary>
         /// <param name="id">Id of the role to retrieve</param>
         /// <returns></returns>
-        [HttpGet("{id}")]
+        [HttpGet("{roleId}")]
         [ProducesResponseType(typeof(RoleResponse),200)]
-        public async Task<ActionResult<Role>> GetRole(string id)
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
+        public async Task<ActionResult<Role>> GetRole(string roleId)
         {
-            var role = await _context.Role.FindAsync(id);
+            var role = await _context.Role.FindAsync(roleId);
 
             if (role == null)
             {
@@ -73,7 +77,8 @@ namespace AccessControl.Controllers
         /// <response code="200">The role created</response>
         [HttpPost]
         [ProducesResponseType(200,Type = typeof(RoleResponse))]
-        public async Task<ActionResult<RoleResponse>> PostRole(RolePost role)
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
+        public async Task<ActionResult<RoleResponse>> CreateRole(RoleDTO role)
         {
             var dbRole= _context.Role.Add(new Role{RoleId = Guid.NewGuid().ToString(),RoleName = role.RoleName});
             try
@@ -93,20 +98,21 @@ namespace AccessControl.Controllers
                 }
             }
 
-            return CreatedAtAction("GetRole", new { id = dbRole.Entity.RoleId }, new RoleResponse{RoleName = dbRole.Entity.RoleName, RoleId = dbRole.Entity.RoleId});
+            return CreatedAtAction("GetRoles", new { id = dbRole.Entity.RoleId }, new RoleResponse{RoleName = dbRole.Entity.RoleName, RoleId = dbRole.Entity.RoleId});
         }
 
         // DELETE: api/Roles/5
         /// <summary>
         /// Deletes a role
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="roleId">THe role to delete</param>
         /// <returns></returns>
         /// <response code="200">Role deleted</response>
         /// <response code="400">Role not found</response>
         [HttpDelete("{roleId}")]
         [ProducesResponseType(typeof(RoleResponse), 200)]
         [ProducesResponseType(400)]
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
         public async Task<ActionResult<Role>> DeleteRole(string roleId)
         {
             var role = await _context.Role.Include(o=>o.Permission).Include(o=>o.Grouprole).FirstOrDefaultAsync(o=>o.RoleId==roleId);
@@ -141,8 +147,9 @@ namespace AccessControl.Controllers
         [Route("{roleId}/permission")]
         [ProducesResponseType(typeof(PermissionResponse),200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<PermissionResponseDetail>> PostPermission(string roleId,
-            [FromBody] PermissionPost permission)
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
+        public async Task<ActionResult<PermissionResponseDetail>> CreatePermission(string roleId,
+            [FromBody] PermissionDTO permission)
         {
             var resourceAction = await _context.Resourceaction.FirstOrDefaultAsync(o =>
                 o.ActionId == permission.ActionId && o.ResourceId == permission.ResourceId);
@@ -174,11 +181,17 @@ namespace AccessControl.Controllers
                 ResourceName = dbPermission.Entity.ResourceAction.Resource.ResourceName
             });
         }
-
+        /// <summary>
+        /// Deletes a permission 
+        /// </summary>
+        /// <param name="roleId">The role to delete the permission from</param>
+        /// <param name="permissionId">The permission to delete</param>
+        /// <returns></returns>
         [HttpDelete]
         [Route("{roleId}/permission/{permissionId}")]
         [ProducesResponseType(typeof(PermissionResponseDetail), 200)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
         public async Task<ActionResult<PermissionResponseDetail>> DeletePermission(string roleId, string permissionId)
         {
             var permission = await _context.Permission.FindAsync(permissionId);

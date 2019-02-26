@@ -8,7 +8,7 @@ namespace AccessControl.Messages
     /// <summary>
     /// request a new application area
     /// </summary>
-    public class ApplicationAreaPost
+    public class ApplicationAreaDTO
     {
         public string ApplicationAreaName{ get; set; }
     }

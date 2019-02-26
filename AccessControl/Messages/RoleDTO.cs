@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 namespace AccessControl.Messages
 {
     /// <summary>
-    /// An Action creation request
+    /// Request to create a role within the access control system
     /// </summary>
-    public class ActionPost
+    public class RoleDTO
     {
         /// <summary>
-        /// The name of the action to be created
+        /// The name of the role to be created
         /// </summary>
-        /// <example>GET</example>
-        public string ActionName { get; set; }
+        /// <example>publisher</example>
+        public string RoleName { get; set; }
     }
 }

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AccessControl.Models;
 using Microsoft.AspNetCore.JsonPatch;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace AccessControl.Controllers
 {
@@ -34,8 +35,10 @@ namespace AccessControl.Controllers
         /// </summary>
         /// <response code="200">Success</response>
         [HttpGet]
+        [SwaggerOperation(OperationId = "GetResources")]
         [ProducesResponseType(200,Type=typeof(ResourceResponse[]))]
-        public async Task<ActionResult<IEnumerable<ResourceResponse>>> GetResource()
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
+        public async Task<ActionResult<IEnumerable<ResourceResponse>>> GetResources()
         {
             return Ok( await _context.Resource.Select(o=>new ResourceResponse{ResourceId = o.ResourceId,ResourceName = o.ResourceName, ApplicationAreaId = o.ApplicationAreaId}).ToListAsync());
         }
@@ -48,6 +51,7 @@ namespace AccessControl.Controllers
         /// <returns></returns>
         [HttpGet("{resourceId}")]
         [ProducesResponseType(200, Type=typeof(ResourceResponse))]
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
         public async Task<ActionResult<ResourceResponse>> GetResource(string resourceId)
         {
             var resource = await _context.Resource.FindAsync(resourceId);
@@ -68,7 +72,8 @@ namespace AccessControl.Controllers
         /// <response code="201">Resource created</response>
         [HttpPost]
         [ProducesResponseType(201, Type = typeof(ResourceResponse))]
-        public async Task<ActionResult<Resource>> PostResource(ResourcePost resource)
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
+        public async Task<ActionResult<Resource>> CreateResource(ResourceDTO resource)
         {
             var dbResource = _context.Resource.Add(new Resource {ResourceId  = Guid.NewGuid().ToString(), ResourceName = resource.ResourceName, ApplicationAreaId = resource.ApplicationAreaId});
             
@@ -90,16 +95,17 @@ namespace AccessControl.Controllers
                 }
             }
             
-            return CreatedAtAction("GetResource", new { id = dbResource.Entity.ResourceId }, new ResourceResponse{ResourceId = dbResource.Entity.ResourceId,ResourceName = dbResource.Entity.ResourceName});
+            return CreatedAtAction("GetResources", new { id = dbResource.Entity.ResourceId }, new ResourceResponse{ResourceId = dbResource.Entity.ResourceId,ResourceName = dbResource.Entity.ResourceName});
         }
 
         /// <summary>
         /// Updates a resource within the system to assign / remove actions
         /// </summary>
         /// <param name="resourceId">The id of the resource to edit</param>
-        /// <param name="resurcePatch"></param>
+        /// <param name="resurcePatch">Add an action to a resource path="/actionid" or delete path="/deleteresourceactionid" </param>
         /// <response code="200">Patch successful</response>
         [HttpPatch("{resourceId}")]
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
         public async Task<IActionResult> PatchResource(string resourceId,
             [FromBody] JsonPatchDocument<ResourcePatch> resurcePatch)
         {
@@ -127,6 +133,8 @@ namespace AccessControl.Controllers
         /// <param name="resourceId">Id of resource to delete</param>
         [HttpDelete("{resourceId}")]
         [ProducesResponseType(204,Type = typeof(ResourceResponse))]
+        [ProducesResponseType(404)]
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
         public async Task<ActionResult<ResourceResponse>> DeleteResource(string resourceId)
         {
             var resource = await _context.Resource.FindAsync(resourceId);

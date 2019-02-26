@@ -46,7 +46,7 @@ namespace XUnitTestAccessControl
         {
             var testController = new UsersController(_databaseFixture.ACContext, _permissionFixture.PermissionCheck);
             var subjectID = Guid.NewGuid().ToString();
-            var result = await testController.PostUser(new UserPost { LocalName = "TestUser" , SubjectId = subjectID});
+            var result = await testController.CreateUser(new UserDTO { LocalName = "TestUser" , SubjectId = subjectID});
             Assert.NotNull(result);
             var resultValue = (result.Result as CreatedAtActionResult).Value as UserResponse;
 
@@ -54,7 +54,7 @@ namespace XUnitTestAccessControl
             var UserRecord = await _databaseFixture.ACContext.User.FindAsync(UserId);
             Assert.Equal(UserRecord.UserId, UserId);
             Assert.Equal(UserRecord.SubjectId,subjectID);
-            await Assert.ThrowsAsync<DbUpdateException>(async () => await testController.PostUser(new UserPost() { LocalName = "TestUser2",SubjectId = subjectID}));
+            await Assert.ThrowsAsync<DbUpdateException>(async () => await testController.CreateUser(new UserDTO() { LocalName = "TestUser2",SubjectId = subjectID}));
 
         }
 
@@ -71,7 +71,7 @@ namespace XUnitTestAccessControl
             }
             await _databaseFixture.ACContext.SaveChangesAsync();
             var testController = new UsersController(_databaseFixture.ACContext, _permissionFixture.PermissionCheck);
-            var result = await testController.GetUser();
+            var result = await testController.GetUsers();
             var resultResult = (Microsoft.AspNetCore.Mvc.OkObjectResult)result.Result;
 
             var testValue = (resultResult.Value as IEnumerable<UserResponse>).ToList();
@@ -99,12 +99,12 @@ namespace XUnitTestAccessControl
             var testController = new UsersController(_databaseFixture.ACContext,_permissionFixture.PermissionCheck);
             for (var i = 0; i < 10; i++)
             {
-                var result = await testController.GetUser(Users[i]);
+                var result = await testController.GetUsers(Users[i]);
                 var resultResult = (Microsoft.AspNetCore.Mvc.OkObjectResult)result.Result;
                 var resultId = (resultResult.Value as UserResponse).SubjectId;
                 Assert.Equal(Users[i], resultId);
             }
-            var result404 = await testController.GetUser(Guid.NewGuid().ToString());
+            var result404 = await testController.GetUsers(Guid.NewGuid().ToString());
             Assert.NotNull(result404.Result as NotFoundResult);
 
         }
@@ -239,7 +239,7 @@ namespace XUnitTestAccessControl
 
             //now to check
             var testUserController=new UsersController(_databaseFixture.ACContext, _permissionFixture.PermissionCheck);
-            var permissions=await testUserController.GetUserPermission(subjectIds[0]);
+            var permissions=await testUserController.GetUserPermissions(subjectIds[0]);
 
             var permissionResult = permissions.Result as OkObjectResult;
             var permissionResponse = permissionResult.Value as PermissionResponse;
@@ -247,7 +247,7 @@ namespace XUnitTestAccessControl
             Assert.NotNull(permissionResponse);
             var first = permissionResponse.Permission.FirstOrDefault();
 
-            var check = testUserController.CheckUserPermission(subjectIds[0], first.ResourceName, first.ActionName);
+            var check = testUserController.GetUserPermissionCheck(subjectIds[0], first.ResourceName, first.ActionName);
             var checkResult = check.Result.Result as OkObjectResult;
             Assert.True(Convert.ToBoolean( ( checkResult.Value as PermissionCheckResult).Allow));
         }

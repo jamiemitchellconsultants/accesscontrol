@@ -54,9 +54,7 @@ namespace AccessControl
 
             services.AddAuthentication(options =>
                 {
-                    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
 
                 }).AddJwtBearer(o =>
                 {
@@ -90,6 +88,7 @@ namespace AccessControl
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "Access Control", Version = "v1" });
+                c.EnableAnnotations();
                 var filePath = Path.Combine(System.AppContext.BaseDirectory, "AccessControl.xml");
                 c.IncludeXmlComments(filePath);
             });

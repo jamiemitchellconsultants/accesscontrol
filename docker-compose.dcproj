@@ -3,7 +3,7 @@
   <PropertyGroup Label="Globals">
     <ProjectVersion>2.1</ProjectVersion>
     <DockerTargetOS>Linux</DockerTargetOS>
-    <ProjectGuid>266239c2-4c2e-496c-92a0-107b11ce8067</ProjectGuid>
+    <ProjectGuid>e5a8f07d-a382-4fec-b9d9-1f2040ada24a</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}</DockerServiceUrl>
     <DockerServiceName>accesscontrol</DockerServiceName>

@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 namespace AccessControl.Messages
 {
     /// <summary>
-    /// A group creation request
+    /// An Action creation request
     /// </summary>
-    public class GroupPost
+    public class ActionDTO
     {
         /// <summary>
-        /// The name of the group to be created
+        /// The name of the action to be created
         /// </summary>
-        /// <example>Auditor</example>
-        public string GroupName { get; set; }
+        /// <example>GET</example>
+        public string ActionName { get; set; }
     }
 }

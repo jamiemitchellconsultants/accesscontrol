@@ -52,7 +52,7 @@ namespace AccessControl.Controllers
         public IActionResult SignOut()
         {
 
-            return new SignOutResult(new[] { "OpenIdConnect", "Cookies" });
+            return new SignOutResult(new[] { "OpenIdConnect", "Cookies" ,"Bearer"});
             //var callbackUrl = Url.Page("/home/SignedOut", pageHandler: null, values: null, protocol: Request.Scheme);
             //return SignOut(
             //    new AuthenticationProperties { RedirectUri = callbackUrl },
@@ -66,7 +66,7 @@ namespace AccessControl.Controllers
         [AllowAnonymous]
         public IActionResult SignedOut()
         {
-            return RedirectToAction("Index");
+            return Ok();
         }
 
         

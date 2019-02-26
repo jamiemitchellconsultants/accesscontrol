@@ -25,14 +25,14 @@ namespace XUnitTestAccessControl
         public async Task TestPost()
         {
             var testController = new ApplicationAreasController(_databaseFixture.ACContext);
-            var result = await testController.PostApplicationArea(new ApplicationAreaPost { ApplicationAreaName =  "TestApplicationarea" });
+            var result = await testController.CreateApplicationArea(new ApplicationAreaDTO { ApplicationAreaName =  "TestApplicationarea" });
             Assert.NotNull(result);
             var resultValue = (result.Result as CreatedAtActionResult).Value as ApplicationAreaResponse;
 
             var applicationareaId = resultValue.ApplicationAreaId;
             var aoolicationAreaRecord = await _databaseFixture.ACContext.Applicationarea.FindAsync(applicationareaId);
             Assert.Equal(aoolicationAreaRecord.ApplicationAreaId, applicationareaId);
-            await Assert.ThrowsAsync<DbUpdateException>(async () => await testController.PostApplicationArea(new ApplicationAreaPost() { ApplicationAreaName = "TestApplicationArea" }));
+            await Assert.ThrowsAsync<DbUpdateException>(async () => await testController.CreateApplicationArea(new ApplicationAreaDTO() { ApplicationAreaName = "TestApplicationArea" }));
 
         }
 
@@ -52,7 +52,7 @@ namespace XUnitTestAccessControl
             applicationAreas = await _databaseFixture.ACContext.Applicationarea.Select(o => o.ApplicationAreaId).ToListAsync();
 
             var testController = new ApplicationAreasController(_databaseFixture.ACContext);
-            var result = await testController.GetApplicationArea();
+            var result = await testController.GetApplicationAreas();
             var resultResult = (Microsoft.AspNetCore.Mvc.OkObjectResult)result.Result;
             var testValue = (resultResult.Value as IEnumerable<ApplicationAreaResponse>).ToList();
             foreach (var applicationAreaId in applicationAreas)

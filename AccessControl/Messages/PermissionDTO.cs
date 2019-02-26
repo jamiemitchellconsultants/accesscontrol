@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace AccessControl.Messages
 {
-    public class PermissionPost
+    public class PermissionDTO
     {
         public bool Deny { get; set; }
         public string ResourceId { get; set; }

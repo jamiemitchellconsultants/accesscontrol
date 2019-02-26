@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AccessControl.Models;
+using Swashbuckle.AspNetCore.Annotations;
 
 
 namespace AccessControl.Controllers
@@ -34,8 +35,10 @@ namespace AccessControl.Controllers
         /// <returns>A list of ApplicationArea entities</returns>
         // GET: api/ApplicationAreas
         [HttpGet]
+        [SwaggerOperation(OperationId = "GetApplicationAreas")]
         [ProducesResponseType(200, Type = typeof(ApplicationAreaResponse[]))]
-        public async Task<ActionResult<IEnumerable<ApplicationAreaResponse>>> GetApplicationArea()
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
+        public async Task<ActionResult<IEnumerable<ApplicationAreaResponse>>> GetApplicationAreas()
         {
             return Ok(await _context.Applicationarea.Select(o => new ApplicationAreaResponse { ApplicationAreaId = o.ApplicationAreaId, ApplicationAreaName = o.ApplicationAreaName }).ToListAsync());
         }
@@ -48,6 +51,8 @@ namespace AccessControl.Controllers
         /// <returns>The details of the ApplicationArea</returns>
         [HttpGet("{id}")]
         [ProducesResponseType(200, Type = typeof(ApplicationAreaResponse))]
+        [ProducesResponseType(404)]
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
         public async Task<ActionResult<ApplicationAreaResponse>> GetApplicationArea(string id)
         {
             var ApplicationArea = await _context.Applicationarea.FindAsync(id);
@@ -69,7 +74,9 @@ namespace AccessControl.Controllers
         /// <returns>A created ApplicationArea entity</returns>
         [HttpPost]
         [ProducesResponseType(200, Type = typeof(ApplicationAreaResponse))]
-        public async Task<ActionResult<ApplicationAreaResponse>> PostApplicationArea(ApplicationAreaPost ApplicationArea)
+        [ProducesResponseType(409)]
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
+        public async Task<ActionResult<ApplicationAreaResponse>> CreateApplicationArea(ApplicationAreaDTO ApplicationArea)
         {
             var dbApplicationArea =
             _context.Applicationarea.Add(new Models.Applicationarea { ApplicationAreaName = ApplicationArea.ApplicationAreaName, ApplicationAreaId = Guid.NewGuid().ToString() });
@@ -91,7 +98,7 @@ namespace AccessControl.Controllers
                 }
             }
 
-            return CreatedAtAction("GetApplicationArea", new { id = dbApplicationArea.Entity.ApplicationAreaId }, new ApplicationAreaResponse { ApplicationAreaId = dbApplicationArea.Entity.ApplicationAreaId, ApplicationAreaName = dbApplicationArea.Entity.ApplicationAreaName });
+            return CreatedAtAction("GetApplicationAreas", new { id = dbApplicationArea.Entity.ApplicationAreaId }, new ApplicationAreaResponse { ApplicationAreaId = dbApplicationArea.Entity.ApplicationAreaId, ApplicationAreaName = dbApplicationArea.Entity.ApplicationAreaName });
         }
 
         private bool ApplicationAreaExists(string id)

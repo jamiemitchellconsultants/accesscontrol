@@ -26,7 +26,7 @@ namespace XUnitTestAccessControl
         public async Task TestPost()    
         {
             var testController=new ActionsController(_databaseFixture.ACContext);
-            var result= await testController.PostAction(new ActionPost {ActionName = "TestAction"})  ;
+            var result= await testController.PostAction(new ActionDTO {ActionName = "TestAction"})  ;
             Assert.NotNull(result);
             var cont=new ActionContext();
             var resultValue= ( result.Result as CreatedAtActionResult).Value as ActionResponse ;
@@ -34,7 +34,7 @@ namespace XUnitTestAccessControl
             var actionId = resultValue.ActionId;
             var actionRecord = await _databaseFixture.ACContext.Action.FindAsync(actionId);
             Assert.Equal(actionRecord.ActionId,actionId);
-            await Assert.ThrowsAsync<DbUpdateException>(async () => await testController.PostAction(new ActionPost() { ActionName = "TestAction" }));
+            await Assert.ThrowsAsync<DbUpdateException>(async () => await testController.PostAction(new ActionDTO() { ActionName = "TestAction" }));
 
         }
 
@@ -54,7 +54,7 @@ namespace XUnitTestAccessControl
             actions=await _databaseFixture.ACContext.Action.Select(o => o.ActionId).ToListAsync();
 
             var testController = new ActionsController(_databaseFixture.ACContext);
-            var result = await testController.GetAction();
+            var result = await testController.GetActions();
             var resultResult = (Microsoft.AspNetCore.Mvc.OkObjectResult) result.Result;
             var testValue =( resultResult.Value as IEnumerable<ActionResponse>).ToList();
             foreach (var actionID in actions)

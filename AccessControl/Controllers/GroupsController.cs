@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using AccessControl.Models;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.Extensions.Logging;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace AccessControl.Controllers
 {
@@ -36,8 +37,10 @@ namespace AccessControl.Controllers
         /// <returns>List of groups</returns>
         // GET: api/Groups
         [HttpGet]
+        [SwaggerOperation(OperationId = "GetGroups")]
         [ProducesResponseType(typeof(GroupResponse[]), 200)]
-        public async Task<ActionResult<IEnumerable<GroupResponse>>> GetGroup()
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
+        public async Task<ActionResult<IEnumerable<GroupResponse>>> GetGroups()
         {
             return Ok(await _context.Group.Select(o => new GroupResponse {GroupId = o.GroupId, GroupName = o.GroupName})
                 .ToListAsync());
@@ -52,7 +55,8 @@ namespace AccessControl.Controllers
         // GET: api/Groups/5
         [HttpGet("{groupId}")]
         [ProducesResponseType(typeof(GroupResponse), 200)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
         public async Task<ActionResult<GroupResponse>> GetGroup(string groupId)
         {
             var dbGroup = await _context.Group.FindAsync(groupId);
@@ -76,9 +80,11 @@ namespace AccessControl.Controllers
         [Route("{groupId}/user")]
         [ProducesResponseType(400)]
         [ProducesResponseType(typeof(UserResponse[]), 200)]
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
         public async Task<ActionResult<IEnumerable<UserResponse>>> GetGroupUsers(string groupId)
         {
             var group = await _context.Group.FindAsync(groupId);
+            if (group == null) return NotFound();
             return Ok(
                 group.Usergroup.Select(o => new UserResponse
                     {LocalName = o.User.LocalName, SubjectId = o.User.SubjectId, UserId = o.UserId})
@@ -95,10 +101,12 @@ namespace AccessControl.Controllers
         [HttpGet]
         [Route("{groupId}/role")]
         [ProducesResponseType(400)]
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
         [ProducesResponseType(typeof(RoleResponse), 200)]
         public async Task<ActionResult<IEnumerable<RoleResponse>>> GetGroupRoles(string groupId)
         {
             var group = await _context.Group.FindAsync(groupId);
+            if (group == null) return NotFound();
             return Ok(group.Grouprole.Select(o => new RoleResponse {RoleName = o.Role.RoleName, RoleId = o.RoleId}));
         }
 
@@ -109,9 +117,12 @@ namespace AccessControl.Controllers
         /// <param name="group">Detail of the group to be created</param>
         /// <returns>The created group</returns>
         /// <response code="201">Created group</response>
+        /// <response code="409">Conflict</response>
         [HttpPost]
         [ProducesResponseType(typeof(GroupResponse), 201)]
-        public async Task<ActionResult<Group>> PostGroup(GroupPost group)
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
+        public async Task<ActionResult<Group>> PostGroup(GroupDTO group)
         {
             var dbGroup = await _context.Group.AddAsync(new Group
                 {GroupId = Guid.NewGuid().ToString(), GroupName = @group.GroupName});
@@ -133,7 +144,7 @@ namespace AccessControl.Controllers
                 }
             }
 
-            return CreatedAtAction("GetGroup", new {id = dbGroup.Entity.GroupId},
+            return CreatedAtAction("GetGroups", new {id = dbGroup.Entity.GroupId},
                 new GroupResponse {GroupId = dbGroup.Entity.GroupId, GroupName = dbGroup.Entity.GroupName});
         }
 
@@ -141,10 +152,11 @@ namespace AccessControl.Controllers
         /// uses patch to add/remove users and roles for a group
         /// </summary>
         /// <param name="groupId">Group to apply the patch to </param>
-        /// <param name="groupPatch">the patch document</param>
+        /// <param name="groupPatch">the patch document.op=add path=/adduserid to add user, path=/addroleid to add role, path=/removeuserid to remove a user and path=/removeroleid to remove a role</param>
         /// <returns>200</returns>
         [HttpPatch("groupId")]
         [ProducesResponseType(200)]
+        [ProducesErrorResponseType(typeof(ApiErrorResponse))]
         public async Task<IActionResult> PatchGroup(string groupId, [FromBody] JsonPatchDocument<GroupPatch> groupPatch)
         {
             var group = await _context.Group.Include(o => o.Grouprole).Include(o => o.Usergroup)

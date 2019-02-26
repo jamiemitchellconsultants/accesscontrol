@@ -26,7 +26,7 @@ namespace XUnitTestAccessControl
         public async Task TestPost()
         {
             var testController = new RolesController(_databaseFixture.ACContext);
-            var result = await testController.PostRole(new RolePost {RoleName = "TestRole"});
+            var result = await testController.CreateRole(new RoleDTO {RoleName = "TestRole"});
             Assert.NotNull(result);
             var resultValue = (result.Result as CreatedAtActionResult).Value as RoleResponse;
 
@@ -34,7 +34,7 @@ namespace XUnitTestAccessControl
             var RoleRecord = await _databaseFixture.ACContext.Role.FindAsync(RoleId);
             Assert.Equal(RoleRecord.RoleId, RoleId);
             await Assert.ThrowsAsync<DbUpdateException>(async () =>
-                await testController.PostRole(new RolePost {RoleName = "TestRole"}));
+                await testController.CreateRole(new RoleDTO {RoleName = "TestRole"}));
             _databaseFixture.ACContext.Role.Remove(_databaseFixture.ACContext.Role.Find(RoleId));
             await _databaseFixture.ACContext.SaveChangesAsync();
         }
@@ -55,7 +55,7 @@ namespace XUnitTestAccessControl
             await _databaseFixture.ACContext.SaveChangesAsync();
 
             var testController = new RolesController(_databaseFixture.ACContext);
-            var result = await testController.GetRole();
+            var result = await testController.GetRoles();
 
 
             var resultResult = (Microsoft.AspNetCore.Mvc.OkObjectResult) result.Result;
@@ -106,11 +106,11 @@ namespace XUnitTestAccessControl
                 { ApplicationAreaId = applicationareaId, ApplicationAreaName = $"applicationarea::{applicationareaId}" });
             await _databaseFixture.ACContext.SaveChangesAsync();
 
-            var resourceresult =await testresourceController.PostResource(new ResourcePost {ResourceName = $"TestResource::{Guid.NewGuid().ToString()}",ApplicationAreaId = applicationareaId});
+            var resourceresult =await testresourceController.CreateResource(new ResourceDTO {ResourceName = $"TestResource::{Guid.NewGuid().ToString()}",ApplicationAreaId = applicationareaId});
             var resourceId = ((resourceresult.Result as CreatedAtActionResult).Value as ResourceResponse).ResourceId;
 
             //create action
-            var actionresult = await testActionController.PostAction(new ActionPost {ActionName = $"TestAction::{Guid.NewGuid().ToString()}"});
+            var actionresult = await testActionController.PostAction(new ActionDTO {ActionName = $"TestAction::{Guid.NewGuid().ToString()}"});
 
             //patch action to resource
             var patch = new JsonPatchDocument<ResourcePatch>();
@@ -118,21 +118,21 @@ namespace XUnitTestAccessControl
             await testresourceController.PatchResource(resourceId, patch);
 
             //create role
-            var result = await testRoleController.PostRole(new RolePost {RoleName = $"name:{Guid.NewGuid().ToString()}" });
+            var result = await testRoleController.CreateRole(new RoleDTO {RoleName = $"name:{Guid.NewGuid().ToString()}" });
             var roleId = ((result.Result as CreatedAtActionResult).Value as RoleResponse).RoleId;
 
             //add permission
-            var addPermission = new PermissionPost
+            var addPermission = new PermissionDTO
             {
                 ActionId = ((actionresult.Result as CreatedAtActionResult).Value as ActionResponse).ActionId,
                 Deny = true, ResourceId = resourceId
             };
-            var permissionResult = await testRoleController.PostPermission(roleId,addPermission);
+            var permissionResult = await testRoleController.CreatePermission(roleId,addPermission);
             Assert.NotNull(permissionResult);
             var permissionResultResult= (Microsoft.AspNetCore.Mvc.OkObjectResult) permissionResult.Result;
             Assert.Equal(resourceId,(permissionResultResult.Value as PermissionResponseDetail).ResourceId);
 
-            await Assert.ThrowsAsync<DbUpdateException>(async () => await testRoleController.PostPermission(roleId, addPermission));
+            await Assert.ThrowsAsync<DbUpdateException>(async () => await testRoleController.CreatePermission(roleId, addPermission));
         }
 
         [Fact]
@@ -172,20 +172,20 @@ namespace XUnitTestAccessControl
             await _databaseFixture.ACContext.SaveChangesAsync();
 
 
-            var resourceresult = await testresourceController.PostResource(new ResourcePost { ResourceName = $"TestResource::{Guid.NewGuid().ToString()}" ,ApplicationAreaId = applicationareaId});
+            var resourceresult = await testresourceController.CreateResource(new ResourceDTO { ResourceName = $"TestResource::{Guid.NewGuid().ToString()}" ,ApplicationAreaId = applicationareaId});
             var resourceId = ((resourceresult.Result as CreatedAtActionResult).Value as ResourceResponse).ResourceId;
 
-            var actionresult = await testActionController.PostAction(new ActionPost { ActionName = $"TestAction::{Guid.NewGuid().ToString()}" });
+            var actionresult = await testActionController.PostAction(new ActionDTO { ActionName = $"TestAction::{Guid.NewGuid().ToString()}" });
             var actionId= ((actionresult.Result as CreatedAtActionResult).Value as ActionResponse).ActionId;
             var patch = new JsonPatchDocument<ResourcePatch>();
             patch.Add(o => o.ActionId, actionId);
             await testresourceController.PatchResource(resourceId, patch);
 
-            var result = await testRoleController.PostRole(new RolePost { RoleName = $"name:{Guid.NewGuid().ToString()}" });
+            var result = await testRoleController.CreateRole(new RoleDTO { RoleName = $"name:{Guid.NewGuid().ToString()}" });
             var roleId = ((result.Result as CreatedAtActionResult).Value as RoleResponse).RoleId;
 
-            var permissionResult = await testRoleController.PostPermission(roleId,
-                new PermissionPost { ActionId = actionId, Deny = true, ResourceId = resourceId });
+            var permissionResult = await testRoleController.CreatePermission(roleId,
+                new PermissionDTO { ActionId = actionId, Deny = true, ResourceId = resourceId });
             
             var permissionResultResult = (Microsoft.AspNetCore.Mvc.OkObjectResult)permissionResult.Result;
             var permissionId = (permissionResultResult.Value as PermissionResponseDetail).PermissionId;

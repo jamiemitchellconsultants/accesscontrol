@@ -8,7 +8,7 @@ namespace AccessControl.Messages
     /// <summary>
     /// Post to create a resource
     /// </summary>
-    public class ResourcePost
+    public class ResourceDTO
     {
         /// <summary>
         /// Name of the resource to be created
