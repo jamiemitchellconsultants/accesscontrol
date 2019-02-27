@@ -54,7 +54,7 @@ namespace XUnitTestAccessControl
             var UserRecord = await _databaseFixture.ACContext.User.FindAsync(UserId);
             Assert.Equal(UserRecord.UserId, UserId);
             Assert.Equal(UserRecord.SubjectId,subjectID);
-            await Assert.ThrowsAsync<DbUpdateException>(async () => await testController.CreateUser(new UserDTO() { LocalName = "TestUser2",SubjectId = subjectID}));
+            await Assert.ThrowsAsync<DbUpdateException>(async () => await testController.CreateUser(new UserDTO() { LocalName = "TestUser",SubjectId = subjectID}));
 
         }
 
@@ -99,12 +99,12 @@ namespace XUnitTestAccessControl
             var testController = new UsersController(_databaseFixture.ACContext,_permissionFixture.PermissionCheck);
             for (var i = 0; i < 10; i++)
             {
-                var result = await testController.GetUsers(Users[i]);
+                var result = await testController.GetUser(Users[i]);
                 var resultResult = (Microsoft.AspNetCore.Mvc.OkObjectResult)result.Result;
                 var resultId = (resultResult.Value as UserResponse).SubjectId;
                 Assert.Equal(Users[i], resultId);
             }
-            var result404 = await testController.GetUsers(Guid.NewGuid().ToString());
+            var result404 = await testController.GetUser(Guid.NewGuid().ToString());
             Assert.NotNull(result404.Result as NotFoundResult);
 
         }
