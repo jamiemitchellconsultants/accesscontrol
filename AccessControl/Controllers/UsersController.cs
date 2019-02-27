@@ -44,6 +44,7 @@ namespace AccessControl.Controllers
         /// <returns>A list of users</returns>
         /// <response code="200">Users in access control</response>
         [HttpGet]
+        [Authorize]
         [ExternalPermission("user","GET")]
         [SwaggerOperation(OperationId = "GetUsers")]
         [ProducesResponseType(200,Type=typeof(UserResponse[]))]

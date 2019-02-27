@@ -26,7 +26,7 @@ namespace XUnitTestAccessControl
         public async Task TestPost()    
         {
             var testController=new ActionsController(_databaseFixture.ACContext);
-            var result= await testController.PostAction(new ActionDTO {ActionName = "TestAction"})  ;
+            var result= await testController.CreateAction(new ActionDTO {ActionName = "TestAction"})  ;
             Assert.NotNull(result);
             var cont=new ActionContext();
             var resultValue= ( result.Result as CreatedAtActionResult).Value as ActionResponse ;
@@ -34,7 +34,7 @@ namespace XUnitTestAccessControl
             var actionId = resultValue.ActionId;
             var actionRecord = await _databaseFixture.ACContext.Action.FindAsync(actionId);
             Assert.Equal(actionRecord.ActionId,actionId);
-            await Assert.ThrowsAsync<DbUpdateException>(async () => await testController.PostAction(new ActionDTO() { ActionName = "TestAction" }));
+            await Assert.ThrowsAsync<DbUpdateException>(async () => await testController.CreateAction(new ActionDTO() { ActionName = "TestAction" }));
 
         }
 

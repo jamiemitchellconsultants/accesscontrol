@@ -23,16 +23,31 @@ using Swashbuckle.AspNetCore.Swagger;
 
 namespace AccessControl
 {
+    /// <summary>
+    /// Startup.
+    /// </summary>
     public class Startup
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:AccessControl.Startup"/> class.
+        /// </summary>
+        /// <param name="configuration">Configuration.</param>
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
 
+        /// <summary>
+        /// Gets the configuration.
+        /// </summary>
+        /// <value>The configuration.</value>
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
+        /// <summary>
+        /// Configures the services.
+        /// </summary>
+        /// <param name="services">Services.</param>
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<CookiePolicyOptions>(options =>
@@ -52,11 +67,7 @@ namespace AccessControl
             services.AddOptions();
             services.Configure<CognitoConfig>(Configuration.GetSection("CognitoConfig"));
 
-            services.AddAuthentication(options =>
-                {
-                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-
-                }).AddJwtBearer(o =>
+            services.AddAuthentication("Bearer").AddJwtBearer(o =>
                 {
                     o.Audience = "3tit9k2l04h1dnebbab5hj69re";
                     o.Authority = "https://cognito-idp.eu-west-1.amazonaws.com/eu-west-1_7Uuksl4YT";
@@ -77,12 +88,11 @@ namespace AccessControl
 
             
 
-            //services.AddCognitoIdentity();
-            ConfigurePermissionCheck(services);
+
             services.AddTransient<IAuthorizationPolicyProvider, ExternalPermissisonPolicyProvider>();
 
             services.AddTransient<IAuthorizationHandler, ExternalPermissionHandler>();
-            //services.AddSingleton<ICallPermissionCheck, RemotePermissionCheck>();
+
             services.AddScoped<ICallPermissionCheck, PermissionCheck>();
 
             services.AddSwaggerGen(c =>
@@ -97,12 +107,10 @@ namespace AccessControl
 
         }
 
-        public virtual void ConfigurePermissionCheck(IServiceCollection services)
-        {
-            //services.Configure<RemotePermissionCheckConfig>(Configuration.GetSection("RemotePermissionCheck"));
-            var config = Configuration.GetSection("RemotePermissionCheck").Get<RemotePermissionCheckConfig>();
-            services.AddSingleton<RemotePermissionCheckConfig>(config);
-        }
+        /// <summary>
+        /// Configures the database.
+        /// </summary>
+        /// <param name="services">Services.</param>
         public virtual void ConfigureDatabase(IServiceCollection services)
         {
             var connection = Configuration.GetConnectionString("CustomDatabase");
@@ -134,6 +142,11 @@ namespace AccessControl
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// <summary>
+        /// Configure the specified app and env.
+        /// </summary>
+        /// <param name="app">App.</param>
+        /// <param name="env">Env.</param>
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())

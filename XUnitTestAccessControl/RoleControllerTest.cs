@@ -110,7 +110,7 @@ namespace XUnitTestAccessControl
             var resourceId = ((resourceresult.Result as CreatedAtActionResult).Value as ResourceResponse).ResourceId;
 
             //create action
-            var actionresult = await testActionController.PostAction(new ActionDTO {ActionName = $"TestAction::{Guid.NewGuid().ToString()}"});
+            var actionresult = await testActionController.CreateAction(new ActionDTO {ActionName = $"TestAction::{Guid.NewGuid().ToString()}"});
 
             //patch action to resource
             var patch = new JsonPatchDocument<ResourcePatch>();
@@ -175,7 +175,7 @@ namespace XUnitTestAccessControl
             var resourceresult = await testresourceController.CreateResource(new ResourceDTO { ResourceName = $"TestResource::{Guid.NewGuid().ToString()}" ,ApplicationAreaId = applicationareaId});
             var resourceId = ((resourceresult.Result as CreatedAtActionResult).Value as ResourceResponse).ResourceId;
 
-            var actionresult = await testActionController.PostAction(new ActionDTO { ActionName = $"TestAction::{Guid.NewGuid().ToString()}" });
+            var actionresult = await testActionController.CreateAction(new ActionDTO { ActionName = $"TestAction::{Guid.NewGuid().ToString()}" });
             var actionId= ((actionresult.Result as CreatedAtActionResult).Value as ActionResponse).ActionId;
             var patch = new JsonPatchDocument<ResourcePatch>();
             patch.Add(o => o.ActionId, actionId);

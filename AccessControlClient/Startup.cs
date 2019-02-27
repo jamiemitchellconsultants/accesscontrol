@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using AccessControlClient.Helper;
+using AccessControlClient.Helpers;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
@@ -79,8 +81,8 @@ namespace AccessControlClient
             services.AddTransient<IAuthorizationPolicyProvider, ExternalPermissisonPolicyProvider>();
 
             services.AddTransient<IAuthorizationHandler, ExternalPermissionHandler>();
-            //services.AddSingleton<ICallPermissionCheck, RemotePermissionCheck>();
-            services.AddScoped<ICallPermissionCheck, PermissionCheck>();
+            services.AddTransient<ICallPermissionCheck, RemotePermissionCheck>();
+            //services.AddScoped<ICallPermissionCheck, PermissionCheck>();
 
             services.AddSwaggerGen(c =>
             {
