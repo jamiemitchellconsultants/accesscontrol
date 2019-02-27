@@ -6,7 +6,8 @@
     <e p="$USER_HOME$/.nuget/packages/xunit.runner.visualstudio/2.4.1/build/netcoreapp1.0/xunit.runner.visualstudio.dotnetcore.testadapter.dll" t="Include" />
     <e p="$USER_HOME$/Library/Caches/Rider2018.2/extResources" t="IncludeRecursive" />
     <e p="$USER_HOME$/Library/Caches/Rider2018.2/resharper-host/local/Transient/ReSharperHost/v182/SolutionCaches/_AccessControl.-776580151.00" t="ExcludeRecursive" />
-    <e p="$PROJECT_DIR$" t="IncludeFlat">
+    <e p="$PROJECT_DIR$" t="IncludeRecursive">
+      <e p=".dockerignore" t="Include" />
       <e p="accesscontrol" t="IncludeRecursive">
         <e p="AccessControl.csproj" t="IncludeRecursive" />
         <e p="appsettings.Development.json" t="Include" />
@@ -24,6 +25,7 @@
           <e p="UsersController.cs" t="Include" />
         </e>
         <e p="Dockerfile" t="Include" />
+        <e p="Dockerfile.original" t="Include" />
         <e p="Helper" t="Include">
           <e p="CognitoConfig.cs" t="Include" />
           <e p="ICallPermissionCheck.cs" t="Include" />
@@ -31,24 +33,25 @@
           <e p="ResourceAuthorizeAttribute.cs" t="Include" />
         </e>
         <e p="Messages" t="Include">
-          <e p="ActionPost.cs" t="Include" />
+          <e p="ActionDTO.cs" t="Include" />
           <e p="ActionResponse.cs" t="Include" />
-          <e p="ApplicationAreaPost.cs" t="Include" />
+          <e p="ApiErrorResponse.cs" t="Include" />
+          <e p="ApplicationAreaDTO.cs" t="Include" />
           <e p="ApplicationAreaResponse.cs" t="Include" />
+          <e p="GroupDTO.cs" t="Include" />
           <e p="GroupPatch.cs" t="Include" />
-          <e p="GroupPost.cs" t="Include" />
           <e p="GroupResponse.cs" t="Include" />
           <e p="PermissionCheckResult.cs" t="Include" />
-          <e p="PermissionPost.cs" t="Include" />
+          <e p="PermissionDTO.cs" t="Include" />
           <e p="PermissionResponse.cs" t="Include" />
+          <e p="ResourceDTO.cs" t="Include" />
           <e p="ResourcePatch.cs" t="Include" />
-          <e p="ResourcePost.cs" t="Include" />
           <e p="ResourceResponse.cs" t="Include" />
-          <e p="RolePost.cs" t="Include" />
+          <e p="RoleDTO.cs" t="Include" />
           <e p="RoleResponse.cs" t="Include" />
+          <e p="UserDTO.cs" t="Include" />
           <e p="UserPatch.cs" t="Include" />
           <e p="UserPermission.cs" t="Include" />
-          <e p="UserPost.cs" t="Include" />
           <e p="UserResponse.cs" t="Include" />
         </e>
         <e p="Models" t="Include">
@@ -160,6 +163,11 @@
         </e>
       </e>
       <e p="AccessControl.sln" t="IncludeFlat" />
+      <e p="bin" t="ExcludeRecursive" />
+      <e p="docker-compose.dcproj" t="IncludeRecursive" />
+      <e p="docker-compose.override.yml" t="Include" />
+      <e p="docker-compose.yml" t="Include" />
+      <e p="obj" t="ExcludeRecursive" />
       <e p="packages" t="ExcludeRecursive" />
       <e p="XUnitTestAccessControl" t="IncludeRecursive">
         <e p="ActionControllerTest.cs" t="Include" />
