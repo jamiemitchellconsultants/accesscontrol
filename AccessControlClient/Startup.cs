@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using AccessControlClient.Helper;
+using AccessControlClient.Helpers;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
@@ -80,7 +82,7 @@ namespace AccessControlClient
 
             services.AddTransient<IAuthorizationHandler, ExternalPermissionHandler>();
             //services.AddSingleton<ICallPermissionCheck, RemotePermissionCheck>();
-            services.AddScoped<ICallPermissionCheck, PermissionCheck>();
+            services.AddScoped<ICallPermissionCheck, RemotePermissionCheck>();
 
             services.AddSwaggerGen(c =>
             {
@@ -142,15 +144,24 @@ namespace AccessControlClient
                 app.UseHsts();
             }
 
+            app.UseAuthentication();
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Access Control V1");
+            });
+
 
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    template: "/{controller=Home}/{action=Index}/{id?}");
+                
             });
         }
     }
