@@ -112,8 +112,12 @@ namespace AccessControl.Helper
 
             //_contextAccessor.HttpContext.Request.Headers.
             //call the permission check point
-            var subjectId = context.User.Claims.First().Value;
-            
+            var subjectId = context.User.Claims.FirstOrDefault()?.Value;
+            if (subjectId == null)
+            {
+                context.Fail();
+                return;
+            }
             var resource = requirement.Resource;
             var action = requirement.Action;
 
@@ -121,6 +125,10 @@ namespace AccessControl.Helper
             if (result)
             {
                 context.Succeed(requirement);
+            }
+            else
+            {
+                context.Fail();
             }
 
             return;

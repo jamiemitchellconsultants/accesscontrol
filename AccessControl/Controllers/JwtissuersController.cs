@@ -113,13 +113,13 @@ namespace AccessControl.Controllers
         }
 
         // DELETE: api/Jwtissuers/5
-        [HttpDelete("{id}")]
+        [HttpDelete("{JWTIssuerId}")]
         [ProducesErrorResponseType(typeof(ApiErrorResponse))]
         [ProducesResponseType(404)]
         [ProducesResponseType(typeof(Jwtissuer),StatusCodes.Status202Accepted)]
-        public async Task<ActionResult<Jwtissuer>> DeleteJwtissuer(string id)
+        public async Task<ActionResult<Jwtissuer>> DeleteJwtissuer(string JWTIssuerId)
         {
-            var jwtissuer = await _context.Jwtissuer.FindAsync(id);
+            var jwtissuer = await _context.Jwtissuer.FindAsync(JWTIssuerId);
             if (jwtissuer == null)
             {
                 return NotFound();

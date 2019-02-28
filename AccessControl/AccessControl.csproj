@@ -7,6 +7,7 @@
     <UserSecretsId>4213375f-58ca-4e5f-b75e-ad5b4ab2de52</UserSecretsId>
     <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\AccessControl.xml</DocumentationFile>
+    <TrimUnusedDependencies>false</TrimUnusedDependencies>
   </PropertyGroup>
 
 

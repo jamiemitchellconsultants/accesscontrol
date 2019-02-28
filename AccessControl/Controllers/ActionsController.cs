@@ -76,7 +76,7 @@ namespace AccessControl.Controllers
         [ProducesResponseType(200, Type=typeof(ActionResponse))]
         [ProducesResponseType(409)]
         [ProducesErrorResponseType(typeof(ApiErrorResponse))]
-        public async Task<ActionResult<ActionResponse>> PostAction(ActionDTO action)
+        public async Task<ActionResult<ActionResponse>> CreateAction(ActionDTO action)
         {
             var dbAction = 
             _context.Action.Add(new Models.Action { ActionName = action.ActionName, ActionId = Guid.NewGuid().ToString() });
