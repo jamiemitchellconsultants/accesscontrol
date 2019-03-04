@@ -3,7 +3,8 @@ services:
   db:
     image: mysql:5.7
     environment:
-      MYSQL_RANDOM_ROOT_PASSWORD: jjmroot
+      MYSQL_HOST: db
+      MYSQL_ROOT_PASSWORD: One0too4.
       MYSQL_DATABASE: accesscontrol
       MYSQL_USER: dbuser
       MYSQL_PASSWORD: dbuserpassword
@@ -11,6 +12,8 @@ services:
       - dbdata:/var/lib/mysql
       - ./_MySQL_Init_Script:/docker-entrypoint-initdb.d
     restart: always
+    ports: 
+      - 3306
 
   accesscontrol:
     depends_on:

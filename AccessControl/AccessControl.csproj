@@ -10,6 +10,10 @@
     <TrimUnusedDependencies>false</TrimUnusedDependencies>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;CS1591</NoWarn>
+  </PropertyGroup>
+
 
   <ItemGroup>
     <PackageReference Include="Amazon.AspNetCore.Identity.Cognito" Version="0.9.0.11" />
