@@ -20,6 +20,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
+using System.IdentityModel.Tokens.Jwt;
+using IdentityServer4.AccessTokenValidation;
+
 
 namespace AccessControl
 {
@@ -61,41 +64,13 @@ namespace AccessControl
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddHttpContextAccessor();
             ConfigureDatabase(services);
-
-            var config = Configuration.GetSection("CognitoConfig").Get<CognitoConfig>();
-
             services.AddOptions();
             services.Configure<CognitoConfig>(Configuration.GetSection("CognitoConfig"));
-
-            services.AddAuthentication("Bearer").AddJwtBearer(o =>
-                {
-                    o.Audience = "3tit9k2l04h1dnebbab5hj69re";
-                    o.Authority = "https://cognito-idp.eu-west-1.amazonaws.com/eu-west-1_7Uuksl4YT";
-                    
-                })
-                .AddCookie()
-                .AddOpenIdConnect(options =>
-                {
-                    options.ResponseType =  "code";//config.ResponseType;//
-                    options.MetadataAddress =  "https://cognito-idp.eu-west-1.amazonaws.com/eu-west-1_7Uuksl4YT/.well-known/openid-configuration";//config.MetadataAddress;//
-                    options.ClientId = "3tit9k2l04h1dnebbab5hj69re";// config.ClientId;//
-                    options.ClientSecret = "1fcq7fqlchpam0g96i9h0iahp7206ts17k2c5mqd68q5lakuo1ql";//config.ClientSecret;// 
-                    options.Events = new OpenIdConnectEvents
-                    {
-                        // this makes signout working
-                        OnRedirectToIdentityProviderForSignOut = OnRedirectToIdentityProviderForSignOut
-                    };
-                });
-
-            
-
-
+            services.Configure<AuthorityConfiguration>(Configuration.GetSection("IdentityServer"));
+            ConfigureAuthentication(services);
             services.AddTransient<IAuthorizationPolicyProvider, ExternalPermissisonPolicyProvider>();
-
             services.AddTransient<IAuthorizationHandler, ExternalPermissionHandler>();
-
             services.AddScoped<ICallPermissionCheck, PermissionCheck>();
-
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "Access Control", Version = "v1" });
@@ -103,9 +78,51 @@ namespace AccessControl
                 var filePath = Path.Combine(System.AppContext.BaseDirectory, "AccessControl.xml");
                 c.IncludeXmlComments(filePath);
             });
+        }
 
+        public virtual void ConfigureAuthentication(IServiceCollection services)
+        {
+            var config = Configuration.GetSection("CognitoConfig").Get<CognitoConfig>();
+            if (config != null)
+            {
+                services.AddAuthentication("Bearer").AddJwtBearer(o =>
+                    {
+                        o.Audience = "3tit9k2l04h1dnebbab5hj69re";
+                        o.Authority = "https://cognito-idp.eu-west-1.amazonaws.com/eu-west-1_7Uuksl4YT";
 
+                    })
+                    .AddCookie()
+                    .AddOpenIdConnect(options =>
+                    {
+                        options.ResponseType = "code"; //config.ResponseType;//
+                        options.MetadataAddress =
+                            "https://cognito-idp.eu-west-1.amazonaws.com/eu-west-1_7Uuksl4YT/.well-known/openid-configuration"; //config.MetadataAddress;//
+                        options.ClientId = "3tit9k2l04h1dnebbab5hj69re"; // config.ClientId;//
+                        options.ClientSecret =
+                            "1fcq7fqlchpam0g96i9h0iahp7206ts17k2c5mqd68q5lakuo1ql"; //config.ClientSecret;// 
+                        options.Events = new OpenIdConnectEvents
+                        {
+                            // this makes signout working
+                            OnRedirectToIdentityProviderForSignOut = OnRedirectToIdentityProviderForSignOut
+                        };
+                    });
+            }
 
+            var is4Config = Configuration.GetSection("IdentityServer").Get<AuthorityConfiguration>();
+            if (is4Config != null)
+            {
+                services.AddAuthentication("Bearer")
+                    .AddIdentityServerAuthentication(options =>
+                    {
+                        options.Authority = $"{is4Config.Authority}:{is4Config.AuthorityPort}";
+                        options.RequireHttpsMetadata = false;
+
+                        options.ApiName = is4Config.ApiName;
+                        options.NameClaimType = is4Config.NameClaimType;
+                        options.RoleClaimType = is4Config.RoleClaimType;
+
+                    });
+            }
         }
 
         /// <summary>
