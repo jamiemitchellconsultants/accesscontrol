@@ -34,7 +34,7 @@ namespace AccessControl.Models
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseMySQL("server=localhost;user id=root;persistsecurityinfo=True;database=AccessControl;allowuservariables=True;password=One0too4.");
+                optionsBuilder.UseMySQL("server=localhost;user id=dbuser;persistsecurityinfo=True;database=AccessControl;allowuservariables=True;password=dbpassword");
             }
         }
 

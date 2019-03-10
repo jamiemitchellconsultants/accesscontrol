@@ -71,6 +71,7 @@ namespace AccessControl
                 {
                     o.Audience = "3tit9k2l04h1dnebbab5hj69re";
                     o.Authority = "https://cognito-idp.eu-west-1.amazonaws.com/eu-west-1_7Uuksl4YT";
+                    
                 })
                 .AddCookie()
                 .AddOpenIdConnect(options =>
