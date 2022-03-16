@@ -22,6 +22,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
 using System.IdentityModel.Tokens.Jwt;
 using IdentityServer4.AccessTokenValidation;
+using Microsoft.OpenApi.Models;
 
 
 namespace AccessControl
@@ -73,7 +74,7 @@ namespace AccessControl
             services.AddScoped<ICallPermissionCheck, PermissionCheck>();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = "Access Control", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Access Control", Version = "v1" });
                 c.EnableAnnotations();
                 var filePath = Path.Combine(System.AppContext.BaseDirectory, "AccessControl.xml");
                 c.IncludeXmlComments(filePath);

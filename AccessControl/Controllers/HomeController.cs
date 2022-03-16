@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using AccessControl.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+//using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 
 namespace AccessControl.Controllers

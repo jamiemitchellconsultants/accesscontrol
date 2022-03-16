@@ -5,7 +5,6 @@ using System.Security.Policy;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-
 namespace AccessControl.Helper
 {
     /// <summary>
@@ -62,7 +61,10 @@ namespace AccessControl.Helper
             return Task.FromResult(policy.Build());
         }
 
-
+        public async Task<AuthorizationPolicy?> GetFallbackPolicyAsync()
+        {
+            throw new NotImplementedException();
+        }
     }
     /// <summary>
     /// Definition of an external dynamic policy

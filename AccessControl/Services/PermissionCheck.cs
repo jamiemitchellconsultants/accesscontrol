@@ -50,7 +50,7 @@ namespace AccessControl.Services
         public async Task<IQueryable<UserPermissionCheck>> GetPermission(string subjectId)
         {
             
-            var list = _context.Query<UserPermissionCheck>().FromSql( $"{_permissionSql} where `user`.`subjectId` = @p0",subjectId);
+            var list = _context..Query<UserPermissionCheck>().FromSql( $"{_permissionSql} where `user`.`subjectId` = @p0",subjectId);
             var r = list.ToList();                                   
             return list;
         }

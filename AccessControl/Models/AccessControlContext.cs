@@ -27,7 +27,7 @@ namespace AccessControl.Models
         public virtual DbSet<Role> Role { get; set; }
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<Usergroup> Usergroup { get; set; }
-        public virtual DbQuery<UserPermissionCheck> PermissionCheck { get; set; }
+        public virtual DbSet<UserPermissionCheck> PermissionCheck { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -42,10 +42,10 @@ namespace AccessControl.Models
         {
             modelBuilder.HasAnnotation("ProductVersion", "2.2.2-servicing-10034");
 
-            modelBuilder.Query<UserPermissionCheck>(entity =>
+            modelBuilder.Entity<UserPermissionCheck>(entity =>
             {
                 entity.ToView("userpermissions", "accesscontrol");
-
+                entity.HasNoKey();
                 entity.Property(e => e.LocalName).HasColumnName("LocalName").HasMaxLength(255);
                 entity.Property(e => e.Deny).HasColumnName("Deny").HasConversion<int>();
                 entity.Property(e => e.ActionName).HasColumnName("ActionName").HasMaxLength(255);
